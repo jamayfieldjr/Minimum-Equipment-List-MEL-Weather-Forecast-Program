@@ -97,7 +97,7 @@ def mel_extractor_function(values,valuesxx,valueszz,valuesuu):
         reference_time_index = [i for i in range(len(reference_time))]
         winter_precip = np.zeros((len(number_of_lines), len(reference_time))) 
         precip_tf = precip_extraction_function()
-        print(precip_tf)
+
         print(time_range_pull_program_3())
         # CHANGES 
         l = get_time_function_3()
