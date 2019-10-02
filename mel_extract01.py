@@ -4,13 +4,14 @@ import re
 from datetime import datetime, timedelta 
 from dateutil import parser
 import numpy as np 
-from get_functions import time_range_pull_program_3
-from time_range import time_range_function_3
 
 """WARNING DO NOT PUT TAF IN FOR KBFM WILL NOT WORK"""
 
 def mel_extractor_function(values,valuesxx,valueszz,valuesuu):
-    print(valuesxx)
+    #print(values)
+    #print('valuesxx=',valuesxx)
+    #print('valueszz=',valueszz)
+    #print('valuesuu=',valuesuu)
     #read values i.e. taf into the pytaf program 
     def read_taf_function(values):
         taf = pytaf.TAF(values)
@@ -29,12 +30,11 @@ def mel_extractor_function(values,valuesxx,valueszz,valuesuu):
         precip_tf = []
         precip_type = []
         precip_groups = taf._raw_weather_groups
-        print(precip_groups)
         precip = {
             'snow': r'\sSN\s|\s-SN\s|\s+SN\s',
             'pellets': r'\sPL\s|\s-PL\s|\s+PL\s|\sIC\s|\s-IC\s|\s+IC\s',
             'freezing': r'\sFZRA\s|\s-FZRA\s|\s+FZRA\s|\sFZDZ\s|\s-FZDZ\s|\s+FZDZ\s',
-            'mix': r'RAPL|PLRA|SNPL|PLSN|SNFZDZ|SNFZRA|RASN|SNRA|DZSN|SNDZ'}
+            'mix': r'RAPL|PLRA|SNPL|PLSN|SNFZDZ|SNFZRA|RASN|SNRA|DZSN|SNDZ|-SNRA'}
 
         for g in precip_groups:
             precip_tf.append(' '.join([k for k, v in precip.items() if re.search(v, g)]))
@@ -97,31 +97,26 @@ def mel_extractor_function(values,valuesxx,valueszz,valuesuu):
         reference_time_index = [i for i in range(len(reference_time))]
         winter_precip = np.zeros((len(number_of_lines), len(reference_time))) 
         precip_tf = precip_extraction_function()
-
-        print(time_range_pull_program_3())
+   
         # CHANGES 
-        l = get_time_function_3()
-        print(l)
-        gotime, nogotime = zip(l)
-        print('============================================================')
-        print(gotime)
-        print(type(gotime))
-        print('============================================================')
 
-        
-        precip_tf = precip_extraction_function()
+
+        gotime=valuesxx
+        nogotime=valueszz
+
         line_reference_index = [i for i in range(len(precip_tf))]
     
         # for loop to loop thru the TAF lines 
         for values01,values02,values03,values04 in zip(gotime,nogotime,precip_tf,line_reference_index): 
-            print(values01)
-            startime=datetime.strptime(values01,'%Y-%m-%d %H:%M')
-            endtime=datetime.strptime(values02, '%Y-%m-%d %H:%M')
+            starttime=datetime.strptime(values01.strip(),'%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M')
+            endtime=datetime.strptime(values02.strip(),'%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M')
+            starttime=datetime.strptime(starttime,'%Y-%m-%d %H:%M')
+            endtime=datetime.strptime(endtime,'%Y-%m-%d %H:%M')
             # for loop to loop thru the reference time 
             for values05,values06 in zip(reference_time,reference_time_index): 
                 currenttime=datetime.strptime(values05, '%Y-%m-%d %H:%M') 
 
-                if parser.parse(str(startime))<=parser.parse(str(currenttime))<parser.parse(str(endtime)):
+                if parser.parse(str(starttime))<=parser.parse(str(currenttime))<parser.parse(str(endtime)):
 
                     if values03==100:
                         winter_precip[values04,values06] = 10 
@@ -157,7 +152,6 @@ def mel_extractor_function(values,valuesxx,valueszz,valuesuu):
         station_id = taf._taf_header['icao_code']
         return(station_id)
 
-    return(comparing_function(),time_range_function(valuesxx),icao_station_info_function())
+    return(comparing_function(),time_range_function(),icao_station_info_function())
 
 
-#print(mel_extractor_function(values))
